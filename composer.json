@@ -16,10 +16,5 @@
     "require": {
         "dormilich/ripedb-client": "dev-php-8-upgrade"
     },
-    "repositories": [
-      {
-        "type": "vcs",
-        "url": "git@github.com:RickBakkr/ripedb-client.git"
-      }
-    ]
+    "minimum-stability": "stable"
 }
