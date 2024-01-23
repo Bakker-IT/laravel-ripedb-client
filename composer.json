@@ -1,0 +1,25 @@
+{
+    "name": "bakkerit/laravel-ripedb-client",
+    "description": "Laravel wrapper for Dormilich RIPE DB Client package",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Bakkerit\\LaravelRipedbClient\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Rick Bakker",
+            "email": "rick@bakker-it.eu"
+        }
+    ],
+    "require": {
+        "dormilich/ripedb-client": "dev-php-8-upgrade"
+    },
+    "repositories": [
+      {
+        "type": "vcs",
+        "url": "git@github.com:RickBakkr/ripedb-client.git"
+      }
+    ]
+}
