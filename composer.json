@@ -16,5 +16,34 @@
     "require": {
         "dormilich/ripedb-client": "dev-php-8-upgrade"
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Bakkerit\\LaravelRipedbClient\\RipedbClientServiceProvider"
+            ],
+            "aliases": {
+                "AsBlock": "Bakkerit\\LaravelRipedbClient\\Facades\\AsBlock",
+                "AutNum": "Bakkerit\\LaravelRipedbClient\\Facades\\AutNum",
+                "Domain": "Bakkerit\\LaravelRipedbClient\\Facades\\Domain",
+                "FilterSet": "Bakkerit\\LaravelRipedbClient\\Facades\\FilterSet",
+                "Inet6num": "Bakkerit\\LaravelRipedbClient\\Facades\\Inet6num",
+                "InetRtr": "Bakkerit\\LaravelRipedbClient\\Facades\\InetRtr",
+                "Inetnum": "Bakkerit\\LaravelRipedbClient\\Facades\\Inetnum",
+                "Irt": "Bakkerit\\LaravelRipedbClient\\Facades\\Irt",
+                "KeyCert": "Bakkerit\\LaravelRipedbClient\\Facades\\KeyCert",
+                "Mntner": "Bakkerit\\LaravelRipedbClient\\Facades\\Mntner",
+                "Organisation": "Bakkerit\\LaravelRipedbClient\\Facades\\Organisation",
+                "PeeringSet": "Bakkerit\\LaravelRipedbClient\\Facades\\PeeringSet",
+                "Person": "Bakkerit\\LaravelRipedbClient\\Facades\\Person",
+                "Poem": "Bakkerit\\LaravelRipedbClient\\Facades\\Poem",
+                "PoeticForm": "Bakkerit\\LaravelRipedbClient\\Facades\\PoeticForm",
+                "Role": "Bakkerit\\LaravelRipedbClient\\Facades\\Role",
+                "Route": "Bakkerit\\LaravelRipedbClient\\Facades\\Route",
+                "Route6": "Bakkerit\\LaravelRipedbClient\\Facades\\Route6",
+                "RouteSet": "Bakkerit\\LaravelRipedbClient\\Facades\\RouteSet",
+                "RtrSet": "Bakkerit\\LaravelRipedbClient\\Facades\\RtrSet"
+            }
+        }
+    }
 }
