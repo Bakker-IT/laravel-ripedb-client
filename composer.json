@@ -24,6 +24,7 @@
             ],
             "aliases": {
                 "AsBlock": "Bakkerit\\LaravelRipedbClient\\Facades\\AsBlock",
+                "AsSet": "Bakkerit\\LaravelRipedbClient\\Facades\\AsSet",
                 "AutNum": "Bakkerit\\LaravelRipedbClient\\Facades\\AutNum",
                 "Domain": "Bakkerit\\LaravelRipedbClient\\Facades\\Domain",
                 "FilterSet": "Bakkerit\\LaravelRipedbClient\\Facades\\FilterSet",
