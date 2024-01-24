@@ -3,12 +3,18 @@
 namespace Bakkerit\LaravelRipedbClient\Models;
 
 use Bakkerit\LaravelRipedbClient\Adapters\GuzzleAdapter;
+use Dormilich\WebService\RIPE\AbstractObject;
 use Dormilich\WebService\RIPE\WebService;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
 
 class BaseModel implements \ArrayAccess, \IteratorAggregate, \Countable, \JsonSerializable
 {
-    private mixed $wrappedObject;
+    private AbstractObject $wrappedObject;
     private static $ripe = [];
+    private bool $new;
+    private string $connection = 'default';
 
     public static function getRipeApi($connection = 'default') {
         if(isset(self::$ripe[$connection])) {
@@ -16,8 +22,12 @@ class BaseModel implements \ArrayAccess, \IteratorAggregate, \Countable, \JsonSe
         }
 
         $config = config('ripe');
-        if(!isset($config['connections']) || !isset($config['connections'][$connection])) {
+        if(!isset($config['connections'][$connection])) {
             throw new \RuntimeException('Unable to resolve connection \'' . $connection . '\'.');
+        }
+
+        if($connection != 'default') {
+            dd($connection, isset($config['connections'][$connection]));
         }
 
         $config = $config['connections'][$connection];
@@ -45,12 +55,61 @@ class BaseModel implements \ArrayAccess, \IteratorAggregate, \Countable, \JsonSe
     }
 
     public function find($primaryKey) {
-        $lookup = $this->getNewInstance($primaryKey);
-        $ripe = self::getRipeApi();
-        $object = $ripe->read($lookup);
+        try {
+            $lookup = $this->getNewInstance($primaryKey);
+            $ripe = self::getRipeApi($this->connection);
+            $object = $ripe->read($lookup);
 
-        $this->wrappedObject = $object;
+            $this->wrappedObject = $object;
+            $this->new = false;
 
+            return $this;
+        } catch (GuzzleException $e) {
+            return null;
+        }
+    }
+
+    public function findOrNew($primaryKey) {
+        $find = $this->find($primaryKey);
+        if(!is_null($find)) {
+            return $find;
+        }
+
+        $this->wrappedObject = $this->getNewInstance($primaryKey);
+        $this->new = true;
+
+        return $this;
+    }
+
+    public function save() {
+        $ripe = self::getRipeApi($this->connection);
+
+//        Automatically add maintainer references.
+//        $mntner = config('ripe.connections.' . $this->connection . 'maintainer');
+//        $attr = $this->wrappedObject['mnt-by'];
+//        $found = false;
+//        if(is_array($attr)) {
+//            foreach($attr as $value) {
+//                if($value->getValue() == $mntner) {
+//                    $found = true;
+//                }
+//            }
+//        }
+
+        if($this->new) {
+            $result = $ripe->create($this->wrappedObject);
+        } else {
+            $result = $ripe->update($this->wrappedObject);
+        }
+
+        $this->wrappedObject = $result;
+        $this->new = false;
+
+        return $this;
+    }
+
+    public function connection($connection) {
+        $this->connection = $connection;
         return $this;
     }
 
@@ -60,6 +119,18 @@ class BaseModel implements \ArrayAccess, \IteratorAggregate, \Countable, \JsonSe
     public function getPrimaryKey()
     {
         return $this->wrappedObject->getPrimaryKey();
+    }
+
+    public function setAttribute($name, $value)
+    {
+        $this->wrappedObject->setAttribute($name, $value);
+        return $this;
+    }
+
+    public function addAttribute($name, $value)
+    {
+        $this->wrappedObject->addAttribute($name, $value);
+        return $this;
     }
 
     public function offsetExists($offset)
@@ -74,7 +145,20 @@ class BaseModel implements \ArrayAccess, \IteratorAggregate, \Countable, \JsonSe
 
     public function offsetSet($offset, $value)
     {
-        return $this->wrappedObject->offsetSet($offset, $value);
+        if(is_array($value)) {
+            $this->wrappedObject->setAttribute($offset, null);
+            foreach($value as $key => $val) {
+                $this->wrappedObject->addAttribute($offset, $val);
+            }
+
+            return null;
+        }
+
+        if(!is_string($value) && method_exists($value, 'getPrimaryKey')) {
+            $value = $value->getPrimaryKey();
+        }
+
+        $this->wrappedObject->offsetSet($offset, $value);
     }
 
     public function offsetUnset($offset)
@@ -95,6 +179,10 @@ class BaseModel implements \ArrayAccess, \IteratorAggregate, \Countable, \JsonSe
     public function jsonSerialize()
     {
         return $this->wrappedObject->jsonSerialize();
+    }
+
+    public function __set(string $name, mixed $value): void {
+        $this->offsetSet($name, $value);
     }
 
 }
